@@ -3,40 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>DarkCheatClient — New Evolution Of Exploiting</title>
+<title>DarkCheatClient — Winter Edition</title>
 
-<!-- Supabase для авторизации -->
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script>
-  // Инициализация Supabase
-  const SUPABASE_URL = 'https://eqzpjvjhnwzmksarkuaj.supabase.co';
-  const SUPABASE_ANON_KEY = 'sb_publishable_SxDXhJb_l3BM0v_0jTAJpw_7ijx9O1B';
-    
-  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  
-  // Проверка авторизации при загрузке
-  document.addEventListener('DOMContentLoaded', async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (session) {
-      // Пользователь авторизован - показываем его данные
-      document.getElementById('auth-section').innerHTML = `
-        <div class="user-info">
-          <img src="${session.user.user_metadata.avatar_url || ''}" 
-               class="user-avatar" 
-               onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
-          <span>${session.user.user_metadata.full_name || session.user.email}</span>
-          <button onclick="logout()" class="logout-btn">Logout</button>
-        </div>
-      `;
-    }
-  });
-  
-  async function logout() {
-    await supabase.auth.signOut();
-    window.location.reload();
-  }
-</script>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
 
 <style>
 /* ================== RESET ================== */
@@ -68,6 +39,7 @@ body {
     #070707;
   color: var(--text);
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  min-height: 100vh;
 }
 
 /* ================== HEADER ================== */
@@ -93,8 +65,8 @@ header {
   color: var(--accent);
 }
 
-/* Auth button styles */
-.auth-btn {
+/* Auth section styles */
+#auth-section .auth-btn {
   background: linear-gradient(90deg, var(--accent), var(--accent-soft));
   color: #111;
   padding: 8px 16px;
@@ -104,9 +76,14 @@ header {
   display: inline-block;
   border: none;
   cursor: pointer;
+  transition: all 0.3s;
 }
 
-/* User info styles */
+#auth-section .auth-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 59, 59, 0.3);
+}
+
 .user-info {
   display: flex;
   align-items: center;
@@ -117,8 +94,8 @@ header {
 }
 
 .user-avatar {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   border: 2px solid var(--accent);
 }
@@ -233,6 +210,8 @@ main {
   color: white;
   opacity: .8;
   animation: fall linear infinite;
+  pointer-events: none;
+  z-index: 1000;
 }
 @keyframes fall {
   to { transform: translateY(110vh); }
@@ -248,7 +227,7 @@ main {
   padding: 14px 18px;
   border-radius: var(--radius);
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  z-index: 1000;
+  z-index: 2000;
   animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
   max-width: 300px;
   display: flex;
@@ -305,6 +284,168 @@ footer {
   font-size: 13px;
 }
 </style>
+
+<script>
+// =============== FIREBASE CONFIGURATION ===============
+// ЗАМЕНИ ЭТИ ЗНАЧЕНИЯ НА СВОИ ИЗ FIREBASE!
+const firebaseConfig = {
+  apiKey: "AIzaSyDTkEqderjTrNiWO7ZLeq775NrEzOR58ew",
+  authDomain: "dccteam.vercel.app",
+  projectId: "darkcheatclient-64495",
+  storageBucket: "darkcheatclient-64495.firebasestorage.app",
+  messagingSenderId: "489209481148",
+  appId: "1:489209481148:web:22b869bd26d414d63e8db9"
+};
+
+// Initialize Firebase
+try {
+  firebase.initializeApp(firebaseConfig);
+  console.log('✅ Firebase initialized');
+} catch (error) {
+  console.error('❌ Firebase initialization error:', error);
+}
+
+const auth = firebase.auth();
+
+// =============== AUTH STATE LISTENER ===============
+auth.onAuthStateChanged((user) => {
+  const authSection = document.getElementById('auth-section');
+  
+  if (user) {
+    // User is signed in
+    authSection.innerHTML = `
+      <div class="user-info">
+        <img src="${user.photoURL || 'https://cdn.discordapp.com/embed/avatars/0.png'}" 
+             class="user-avatar"
+             onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+        <span>${user.displayName || user.email}</span>
+        <button onclick="logout()" class="logout-btn">Logout</button>
+      </div>
+    `;
+  } else {
+    // User is signed out
+    authSection.innerHTML = `
+      <a href="login.html" class="auth-btn">Login / Register</a>
+    `;
+  }
+});
+
+// Logout function
+function logout() {
+  auth.signOut()
+    .then(() => {
+      console.log('User signed out');
+      window.location.reload();
+    })
+    .catch((error) => {
+      console.error('Sign out error:', error);
+      showToast('error', 'Logout failed', 'Please try again');
+    });
+}
+
+// =============== COPY SCRIPTS FUNCTIONS ===============
+const mainScript = "loadstring(game:HttpGet('https://dccteam.com/main'))()";
+const universalScript = "loadstring(game:HttpGet('https://dccteam.com/universal'))()";
+
+function copyMainScript() {
+  copyText(mainScript, 'main');
+}
+
+function copyUniversalScript() {
+  copyText(universalScript, 'universal');
+}
+
+function copyText(t, type) {
+  navigator.clipboard.writeText(t)
+    .then(() => {
+      showToast('success', 
+        type === 'main' ? 'Main Script Copied!' : 'Universal Script Copied!',
+        type === 'main' 
+          ? 'The main script has been copied to clipboard.' 
+          : 'The universal script has been copied to clipboard.'
+      );
+    })
+    .catch(err => {
+      showToast('error', 'Copy Failed', 'Could not copy to clipboard');
+      console.error('Copy error:', err);
+    });
+}
+
+// =============== TOAST NOTIFICATION ===============
+function showToast(type, title, message) {
+  // Remove previous toasts
+  const oldToasts = document.querySelectorAll('.toast');
+  oldToasts.forEach(toast => toast.remove());
+  
+  // Create new toast
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  
+  const icon = document.createElement('div');
+  icon.className = 'toast-icon';
+  icon.textContent = type === 'success' ? '✓' : '✗';
+  
+  const content = document.createElement('div');
+  content.className = 'toast-content';
+  
+  const titleEl = document.createElement('div');
+  titleEl.className = 'toast-title';
+  titleEl.textContent = title;
+  
+  const messageEl = document.createElement('div');
+  messageEl.className = 'toast-message';
+  messageEl.textContent = message;
+  
+  content.appendChild(titleEl);
+  content.appendChild(messageEl);
+  
+  toast.appendChild(icon);
+  toast.appendChild(content);
+  
+  document.body.appendChild(toast);
+  
+  // Auto remove after 3 seconds
+  setTimeout(() => {
+    if (toast.parentNode) {
+      toast.remove();
+    }
+  }, 3000);
+}
+
+// =============== LOAD CHANGELOG ===============
+fetch("https://raw.githubusercontent.com/DarkCheatClientTeam/Files/refs/heads/main/changelogs.txt")
+  .then(r => {
+    if (!r.ok) throw new Error('Failed to load changelog');
+    return r.text();
+  })
+  .then(t => {
+    document.getElementById("changelog").textContent = t;
+  })
+  .catch(error => {
+    console.error('Error loading changelog:', error);
+    document.getElementById("changelog").textContent = "Failed to load changelog. Please try again later.";
+  });
+
+// =============== CREATE SNOW EFFECT ===============
+function createSnow() {
+  for(let i = 0; i < 18; i++) {
+    const snowflake = document.createElement("div");
+    snowflake.className = "snow";
+    snowflake.textContent = "❄";
+    snowflake.style.left = Math.random() * 100 + "vw";
+    snowflake.style.animationDuration = (5 + Math.random() * 6) + "s";
+    snowflake.style.fontSize = (10 + Math.random() * 12) + "px";
+    snowflake.style.opacity = 0.5 + Math.random() * 0.5;
+    document.body.appendChild(snowflake);
+  }
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DarkCheatClient Winter Edition loaded');
+  createSnow();
+});
+</script>
 </head>
 
 <body>
@@ -315,6 +456,7 @@ footer {
     <span class="badge">❄ Winter Edition</span>
   </div>
   <div id="auth-section">
+    <!-- Auth content will be loaded here by JavaScript -->
     <a href="login.html" class="auth-btn">Login / Register</a>
   </div>
 </header>
@@ -353,7 +495,7 @@ footer {
 
 <section class="changelog">
   <h3>📄 Change Logs</h3>
-  <pre id="changelog">Loading...</pre>
+  <pre id="changelog">Loading changelog...</pre>
 </section>
 
 </main>
@@ -362,82 +504,5 @@ footer {
   © 2025 DarkCheatClient — Winter Edition
 </footer>
 
-<script>
-const mainScript = "loadstring(game:HttpGet('https://dccteam.com/main'))()";
-const universalScript = "loadstring(game:HttpGet('https://dccteam.com/universal'))()";
-
-// Функции для копирования с уведомлениями
-function copyMainScript() {
-  copyText(mainScript, 'main');
-}
-
-function copyUniversalScript() {
-  copyText(universalScript, 'universal');
-}
-
-function copyText(t, type) {
-  navigator.clipboard.writeText(t);
-  showToast(type);
-}
-
-function showToast(type) {
-  // Удаляем предыдущие тосты
-  const oldToasts = document.querySelectorAll('.toast');
-  oldToasts.forEach(toast => toast.remove());
-  
-  // Создаем новый тост
-  const toast = document.createElement('div');
-  toast.className = 'toast';
-  
-  const icon = document.createElement('div');
-  icon.className = 'toast-icon';
-  icon.textContent = '✓';
-  
-  const content = document.createElement('div');
-  content.className = 'toast-content';
-  
-  const title = document.createElement('div');
-  title.className = 'toast-title';
-  title.textContent = type === 'main' ? 'Main Script Copied!' : 'Universal Script Copied!';
-  
-  const message = document.createElement('div');
-  message.className = 'toast-message';
-  message.textContent = type === 'main' 
-    ? 'The main script has been copied to clipboard.' 
-    : 'The universal script has been copied to clipboard.';
-  
-  content.appendChild(title);
-  content.appendChild(message);
-  
-  toast.appendChild(icon);
-  toast.appendChild(content);
-  
-  document.body.appendChild(toast);
-  
-  // Автоматическое удаление через 3 секунды
-  setTimeout(() => {
-    if (toast.parentNode) {
-      toast.remove();
-    }
-  }, 3000);
-}
-
-/* Load changelog */
-fetch("https://raw.githubusercontent.com/DarkCheatClientTeam/Files/refs/heads/main/changelogs.txt")
-  .then(r => r.text())
-  .then(t => document.getElementById("changelog").textContent = t);
-
-/* Snow */
-for(let i=0;i<18;i++){
-  const s=document.createElement("div");
-  s.className="snow";
-  s.textContent="❄";
-  s.style.left=Math.random()*100+"vw";
-  s.style.animationDuration=5+Math.random()*6+"s";
-  s.style.fontSize=10+Math.random()*12+"px";
-  document.body.appendChild(s);
-}
-</script>
-
 </body>
-    </html>
+</html>
