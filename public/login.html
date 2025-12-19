@@ -14,22 +14,26 @@
     --radius: 14px;
   }
   
-  body {
+  * {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
     background: var(--bg);
     color: var(--text);
-    font-family: system-ui, -apple-system, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 20px;
   }
   
   .auth-container {
     width: 100%;
-    max-width: 400px;
-    padding: 20px;
+    max-width: 420px;
   }
   
   .auth-card {
@@ -38,12 +42,17 @@
     padding: 40px 30px;
     border: 1px solid #222;
     text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   }
   
   .logo {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: 800;
     margin-bottom: 5px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-soft));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
   
   .subtitle {
@@ -56,6 +65,7 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    margin-bottom: 20px;
   }
   
   .auth-btn {
@@ -63,25 +73,27 @@
     align-items: center;
     justify-content: center;
     gap: 12px;
-    padding: 14px;
-    border-radius: 10px;
-    border: 1px solid #333;
-    background: transparent;
-    color: var(--text);
+    padding: 16px;
+    border-radius: 12px;
+    border: none;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;
-    font-size: 15px;
+    font-size: 16px;
+    width: 100%;
   }
   
   .auth-btn:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+  
+  .auth-btn:active {
+    transform: translateY(0);
   }
   
   .auth-btn.discord {
     background: #5865F2;
-    border-color: #5865F2;
     color: white;
   }
   
@@ -100,25 +112,53 @@
   }
   
   .back-link {
-    display: block;
+    display: inline-block;
     margin-top: 20px;
     color: var(--muted);
     text-decoration: none;
     font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.3s;
   }
   
   .back-link:hover {
     color: var(--accent);
+    background: rgba(255, 59, 59, 0.1);
   }
   
   .error {
     color: #ff3b3b;
     background: rgba(255, 59, 59, 0.1);
-    padding: 10px;
+    padding: 12px;
     border-radius: 8px;
     margin-bottom: 20px;
     font-size: 14px;
     display: none;
+    border-left: 4px solid var(--accent);
+  }
+  
+  .loading {
+    display: none;
+    color: var(--accent);
+    margin-top: 10px;
+  }
+  
+  .loading-spinner {
+    border: 2px solid rgba(255, 59, 59, 0.3);
+    border-radius: 50%;
+    border-top: 2px solid var(--accent);
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 10px;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
 </style>
 </head>
@@ -131,14 +171,14 @@
       <div class="subtitle">❄ Winter Edition - Secure Access</div>
       
       <div class="auth-buttons">
-        <button class="auth-btn discord" onclick="signInWithDiscord()">
+        <button id="discord-btn" class="auth-btn discord">
           <svg width="20" height="20" viewBox="0 0 24 24">
-            <path fill="currentColor" d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028c.462-.63.872-1.295 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128c.125-.094.25-.189.372-.286a.076.076 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.076.076 0 0 1 .078.01c.12.096.245.19.37.285a.077.077 0 0 1-.006.128a12.3 12.3 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.355.698.765 1.363 1.226 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
+            <path fill="currentColor" d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.791 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028c.462-.63.872-1.295 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128c.125-.094.25-.189.372-.286a.076.076 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.076.076 0 0 1 .078.01c.12.096.245.19.37.285a.077.077 0 0 1-.006.128a12.3 12.3 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.355.698.765 1.363 1.226 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
           </svg>
           Continue with Discord
         </button>
         
-        <button class="auth-btn google" onclick="signInWithGoogle()">
+        <button id="google-btn" class="auth-btn google">
           <svg width="20" height="20" viewBox="0 0 24 24">
             <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
             <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -149,70 +189,139 @@
         </button>
       </div>
       
+      <div id="loading" class="loading">
+        <div class="loading-spinner"></div>
+        Redirecting to authentication...
+      </div>
+      
       <a href="/" class="back-link">← Back to Home</a>
     </div>
   </div>
   
-  <!-- Подключаем Supabase из CDN -->
+  <!-- Supabase CDN -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   
   <script>
-    // ВАЖНО: Замени эти значения на свои!
-    const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
-    const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY_HERE';
+    // =============== КОНФИГУРАЦИЯ ===============
+    // ЗАМЕНИ ЭТИ ЗНАЧЕНИЯ НА СВОИ ИЗ SUPABASE!
+    const SUPABASE_URL = 'https://eqzpjvjhnwzmksarkuaj.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_SxDXhJb_l3BM0v_0jTAJpw_7ijx9O1B';
     
-    // Инициализация Supabase с правильными настройками
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: true,
-        flowType: 'pkce'
-      }
-    });
+    // Проверяем что значения не пустые
+    if (SUPABASE_URL.includes('YOUR_PROJECT_ID') || SUPABASE_ANON_KEY.includes('YOUR_ANON_KEY')) {
+      showError('Please update Supabase configuration in the code!');
+      console.error('❌ Supabase credentials not configured!');
+    }
     
-    // Показываем ошибку
+    // =============== ИНИЦИАЛИЗАЦИЯ ===============
+    let supabase;
+    try {
+      supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: {
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: true
+        }
+      });
+      console.log('✅ Supabase initialized successfully');
+    } catch (error) {
+      showError('Failed to initialize authentication: ' + error.message);
+      console.error('❌ Supabase init error:', error);
+    }
+    
+    // =============== ФУНКЦИИ ПОЛЬЗОВАТЕЛЯ ===============
     function showError(message) {
       const errorEl = document.getElementById('error-message');
       errorEl.textContent = message;
       errorEl.style.display = 'block';
-      console.error('Auth error:', message);
+      console.error('Error:', message);
+      
+      // Автоматически скрыть через 5 секунд
+      setTimeout(() => {
+        errorEl.style.display = 'none';
+      }, 5000);
     }
     
-    // Discord авторизация
+    function showLoading(show) {
+      const loadingEl = document.getElementById('loading');
+      const discordBtn = document.getElementById('discord-btn');
+      const googleBtn = document.getElementById('google-btn');
+      
+      if (show) {
+        loadingEl.style.display = 'block';
+        discordBtn.disabled = true;
+        googleBtn.disabled = true;
+        discordBtn.style.opacity = '0.6';
+        googleBtn.style.opacity = '0.6';
+      } else {
+        loadingEl.style.display = 'none';
+        discordBtn.disabled = false;
+        googleBtn.disabled = false;
+        discordBtn.style.opacity = '1';
+        googleBtn.style.opacity = '1';
+      }
+    }
+    
+    // =============== ОБРАБОТЧИКИ КНОПОК ===============
     async function signInWithDiscord() {
       try {
-        console.log('Starting Discord OAuth...');
+        console.log('🔄 Starting Discord OAuth...');
+        showLoading(true);
+        
+        if (!supabase) {
+          throw new Error('Supabase not initialized');
+        }
+        
+        // Получаем текущий URL для редиректа
+        const currentUrl = window.location.origin;
+        const redirectUrl = `${currentUrl}/auth-callback.html`;
+        
+        console.log('Redirect URL:', redirectUrl);
         
         const { data, error } = await supabase.auth.signInWithOAuth({
           provider: 'discord',
           options: {
-            redirectTo: window.location.origin + '/auth-callback.html',
+            redirectTo: redirectUrl,
             scopes: 'identify email'
           }
         });
         
         if (error) {
-          showError('Discord auth error: ' + error.message);
-          throw error;
+          throw new Error(`Discord auth failed: ${error.message}`);
         }
         
-        console.log('Discord OAuth started:', data);
+        console.log('✅ Discord OAuth started successfully', data);
+        
+        // OAuth начнется автоматически, но на всякий случай:
+        if (data.url) {
+          window.location.href = data.url;
+        }
+        
       } catch (error) {
-        showError('Failed to start Discord login. Check console for details.');
-        console.error('Discord auth failed:', error);
+        showLoading(false);
+        showError(error.message || 'Failed to connect with Discord');
+        console.error('❌ Discord auth error:', error);
       }
     }
     
-    // Google авторизация
     async function signInWithGoogle() {
       try {
-        console.log('Starting Google OAuth...');
+        console.log('🔄 Starting Google OAuth...');
+        showLoading(true);
+        
+        if (!supabase) {
+          throw new Error('Supabase not initialized');
+        }
+        
+        const currentUrl = window.location.origin;
+        const redirectUrl = `${currentUrl}/auth-callback.html`;
+        
+        console.log('Redirect URL:', redirectUrl);
         
         const { data, error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: window.location.origin + '/auth-callback.html',
+            redirectTo: redirectUrl,
             queryParams: {
               access_type: 'offline',
               prompt: 'consent'
@@ -221,33 +330,103 @@
         });
         
         if (error) {
-          showError('Google auth error: ' + error.message);
-          throw error;
+          throw new Error(`Google auth failed: ${error.message}`);
         }
         
-        console.log('Google OAuth started:', data);
+        console.log('✅ Google OAuth started successfully', data);
+        
+        if (data.url) {
+          window.location.href = data.url;
+        }
+        
       } catch (error) {
-        showError('Failed to start Google login. Check console for details.');
-        console.error('Google auth failed:', error);
+        showLoading(false);
+        showError(error.message || 'Failed to connect with Google');
+        console.error('❌ Google auth error:', error);
       }
     }
     
-    // Проверяем, есть ли ошибка в URL (например, после редиректа)
-    function checkUrlForErrors() {
+    // =============== НАЗНАЧЕНИЕ СОБЫТИЙ ===============
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('📄 Login page loaded');
+      
+      // Назначаем обработчики событий
+      const discordBtn = document.getElementById('discord-btn');
+      const googleBtn = document.getElementById('google-btn');
+      
+      if (discordBtn) {
+        discordBtn.addEventListener('click', signInWithDiscord);
+        console.log('✅ Discord button event listener added');
+      } else {
+        console.error('❌ Discord button not found!');
+      }
+      
+      if (googleBtn) {
+        googleBtn.addEventListener('click', signInWithGoogle);
+        console.log('✅ Google button event listener added');
+      } else {
+        console.error('❌ Google button not found!');
+      }
+      
+      // Проверяем URL на наличие ошибок
       const urlParams = new URLSearchParams(window.location.search);
       const error = urlParams.get('error');
       const errorDescription = urlParams.get('error_description');
       
       if (error) {
-        showError(`Auth error: ${errorDescription || error}`);
-        
-        // Очищаем URL от параметров ошибок
+        showError(`Authentication error: ${errorDescription || error}`);
         window.history.replaceState({}, document.title, window.location.pathname);
+      }
+      
+      // Проверяем авторизацию
+      checkCurrentSession();
+    });
+    
+    // Проверяем текущую сессию
+    async function checkCurrentSession() {
+      try {
+        if (!supabase) return;
+        
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.log('No active session:', error.message);
+          return;
+        }
+        
+        if (data.session) {
+          console.log('User already logged in, redirecting...');
+          window.location.href = '/';
+        }
+      } catch (error) {
+        console.log('Session check error:', error);
       }
     }
     
-    // Запускаем проверку при загрузке
-    document.addEventListener('DOMContentLoaded', checkUrlForErrors);
+    // Дебаг функция для тестирования
+    window.testAuth = function() {
+      console.log('=== DEBUG INFO ===');
+      console.log('Supabase URL:', SUPABASE_URL);
+      console.log('Current URL:', window.location.href);
+      console.log('Origin:', window.location.origin);
+      console.log('Supabase instance:', supabase ? '✅ Initialized' : '❌ Not initialized');
+      
+      // Тестовая проверка Supabase
+      if (supabase) {
+        supabase.auth.getSession().then(({ data }) => {
+          console.log('Current session:', data.session);
+        }).catch(err => {
+          console.error('Session test error:', err);
+        });
+      }
+    };
+    
+    // Вызов дебаг функции при нажатии Ctrl+Shift+D
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+        window.testAuth();
+      }
+    });
   </script>
 </body>
 </html>
