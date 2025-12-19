@@ -1,1 +1,205 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard - DarkCheatClient</title>
+<link rel="stylesheet" href="/style.css">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<style>
+  .dashboard {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+  }
+  
+  .user-header {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 30px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .user-avatar-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+  }
+  
+  .user-info h2 {
+    margin: 0 0 5px 0;
+  }
+  
+  .user-email {
+    color: var(--muted);
+    margin: 0;
+  }
+  
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+  
+  .dashboard-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 25px;
+  }
+  
+  .dashboard-card h3 {
+    margin-top: 0;
+    color: var(--accent);
+  }
+  
+  .script-code {
+    background: var(--bg-soft);
+    padding: 15px;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 14px;
+    margin: 15px 0;
+    overflow-x: auto;
+  }
+  
+  .btn-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .logout-btn {
+    background: rgba(255, 59, 59, 0.1);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .logout-btn:hover {
+    background: rgba(255, 59, 59, 0.2);
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      DarkCheatClient
+      <span class="badge">❄ Dashboard</span>
+    </div>
+    <a href="/" class="btn btn-outline">Home</a>
+  </header>
+  
+  <div class="dashboard">
+    <div id="user-header" class="user-header">
+      <!-- Заполняется JavaScript -->
+    </div>
+    
+    <div class="dashboard-grid">
+      <div class="dashboard-card">
+        <h3>🎮 Your Scripts</h3>
+        <div class="script-code">
+          loadstring(game:HttpGet('https://dccteam.com/main'))()
+        </div>
+        <button onclick="copyScript('main')" class="btn btn-primary">
+          Copy Main Script
+        </button>
+      </div>
+      
+      <div class="dashboard-card">
+        <h3>📊 Statistics</h3>
+        <p>Account created: <span id="account-created">Loading...</span></p>
+        <p>Last login: <span id="last-login">Loading...</span></p>
+        <p>Scripts used: <strong>24</strong></p>
+      </div>
+      
+      <div class="dashboard-card">
+        <h3>⚙️ Settings</h3>
+        <p>Manage your account settings and preferences.</p>
+        <div class="btn-group">
+          <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Инициализация Supabase
+    const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
+    const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+    
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // Проверка авторизации
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        window.location.href = '/login.html';
+        return null;
+      }
+      
+      return session.user;
+    }
+    
+    // Загрузка данных пользователя
+    async function loadUserData() {
+      const user = await checkAuth();
+      if (!user) return;
+      
+      // Отображаем информацию о пользователе
+      document.getElementById('user-header').innerHTML = `
+        <img src="${user.user_metadata.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png'}" 
+             class="user-avatar-large"
+             onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+        <div class="user-info">
+          <h2>${user.user_metadata.full_name || 'User'}</h2>
+          <p class="user-email">${user.email}</p>
+          <p>Discord: ${user.user_metadata.preferred_username || 'Not linked'}</p>
+        </div>
+      `;
+      
+      // Загружаем дополнительные данные из БД
+      const { data: userData, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+        
+      if (!error && userData) {
+        document.getElementById('account-created').textContent = 
+          new Date(userData.created_at).toLocaleDateString();
+        document.getElementById('last-login').textContent = 
+          new Date(userData.last_login).toLocaleDateString();
+      }
+    }
+    
+    // Функция копирования скрипта
+    function copyScript(type) {
+      const script = type === 'main' 
+        ? "loadstring(game:HttpGet('https://dccteam.com/main'))()"
+        : "loadstring(game:HttpGet('https://dccteam.com/universal'))()";
+      
+      navigator.clipboard.writeText(script);
+      
+      // Показываем уведомление
+      alert(`✅ ${type === 'main' ? 'Main' : 'Universal'} script copied to clipboard!`);
+    }
+    
+    // Выход из системы
+    async function logout() {
+      await supabase.auth.signOut();
+      window.location.href = '/';
+    }
+    
+    // Инициализация
+    document.addEventListener('DOMContentLoaded', loadUserData);
+  </script>
+</body>
+  </html>
