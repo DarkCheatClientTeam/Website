@@ -1,1 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>DarkCheatClient — Winter Edition</title>
 
+<!-- Supabase для авторизации -->
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+  // Инициализация Supabase
+  const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
+  const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+  
+  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  
+  // Проверка авторизации при загрузке
+  document.addEventListener('DOMContentLoaded', async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session) {
+      // Пользователь авторизован - показываем его данные
+      document.getElementById('auth-section').innerHTML = `
+        <div class="user-info">
+          <img src="${session.user.user_metadata.avatar_url || ''}" 
+               class="user-avatar" 
+               onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+          <span>${session.user.user_metadata.full_name || session.user.email}</span>
+          <button onclick="logout()" class="logout-btn">Logout</button>
+        </div>
+      `;
+    }
+  });
+  
+  async function logout() {
+    await supabase.auth.signOut();
+    window.location.reload();
+  }
+</script>
+
+<style>
+/* ================== RESET ================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* ================== VARIABLES ================== */
+:root {
+  --bg: #070707;
+  --bg-soft: #0d0d0d;
+  --card: #111;
+  --accent: #ff3b3b;
+  --accent-soft: #ff5c5c;
+  --text: #f1f1f1;
+  --muted: #b0b0b0;
+  --radius: 14px;
+}
+
+/* ================== BODY ================== */
+body {
+  background:
+    radial-gradient(800px 400px at 50% -100px, rgba(255,60,60,.15), transparent),
+    #070707;
+  color: var(--text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+}
+
+/* ================== HEADER ================== */
+header {
+  max-width: 1200px;
+  margin: auto;
+  padding: 16px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-weight: 800;
+  font-size: 18px;
+}
+.badge {
+  margin-left: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: rgba(255,60,60,.15);
+  color: var(--accent);
+}
+
+/* Auth button styles */
+.auth-btn {
+  background: linear-gradient(90deg, var(--accent), var(--accent-soft));
+  color: #111;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-block;
+  border: none;
+  cursor: pointer;
+}
+
+/* User info styles */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 8px 15px;
+  border-radius: 20px;
+}
+
+.user-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+}
+
+.logout-btn {
+  background: rgba(255, 59, 59, 0.2);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 59, 59, 0.3);
+}
+
+/* ================== MAIN ================== */
+main {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px 18px 80px;
+}
+
+/* ================== HERO ================== */
+.hero h1 {
+  font-size: clamp(28px, 6vw, 42px);
+  margin: 20px 0 10px;
+}
+.hero p {
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+/* ================== BUTTONS ================== */
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.btn {
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
+}
+.btn:active {
+  transform: scale(0.95);
+}
+.btn-primary {
+  background: linear-gradient(90deg, var(--accent), var(--accent-soft));
+  color: #111;
+}
+.btn-outline {
+  background: transparent;
+  border: 1px solid #222;
+  color: var(--text);
+}
+
+/* ================== CODE BOX ================== */
+.codebox {
+  margin-top: 18px;
+  background: var(--bg-soft);
+  border: 1px solid #1d1d1d;
+  padding: 14px;
+  border-radius: var(--radius);
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-family: monospace;
+  font-size: 13px;
+  overflow-x: auto;
+}
+
+/* ================== FEATURES ================== */
+.features {
+  margin-top: 26px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+.feature {
+  background: var(--card);
+  padding: 18px;
+  border-radius: var(--radius);
+}
+.feature h4 {
+  margin: 0 0 6px;
+}
+
+/* ================== CHANGELOGS ================== */
+.changelog {
+  margin-top: 40px;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 18px;
+}
+.changelog pre {
+  white-space: pre-wrap;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ================== SNOW ================== */
+.snow {
+  position: fixed;
+  top: -10px;
+  color: white;
+  opacity: .8;
+  animation: fall linear infinite;
+}
+@keyframes fall {
+  to { transform: translateY(110vh); }
+}
+
+/* ================== TOAST NOTIFICATION ================== */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: var(--card);
+  border-left: 4px solid var(--accent);
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  z-index: 1000;
+  animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+  max-width: 300px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toast-icon {
+  color: var(--accent);
+  font-size: 18px;
+}
+
+.toast-content {
+  flex: 1;
+}
+
+.toast-title {
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.toast-message {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+/* ================== FOOTER ================== */
+footer {
+  text-align: center;
+  color: var(--muted);
+  padding: 30px 10px;
+  font-size: 13px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">
+    DarkCheatClient
+    <span class="badge">❄ Winter Edition</span>
+  </div>
+  <div id="auth-section">
+    <a href="login.html" class="auth-btn">Login / Register</a>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+  <h1>Optimised winter build</h1>
+  <p>Stable layout, smooth resize, no FPS drops.</p>
+
+  <div class="buttons">
+    <button class="btn btn-primary" onclick="copyMainScript()">Copy Main Script</button>
+    <button class="btn btn-outline" onclick="copyUniversalScript()">Copy Universal</button>
+  </div>
+
+  <div class="codebox">
+    <span id="mainCode">loadstring(game:HttpGet('https://dccteam.com/main'))()</span>
+    <button class="btn btn-outline" onclick="copyMainScript()">Copy</button>
+  </div>
+</section>
+
+<section class="features">
+  <div class="feature">
+    <h4>🔒 Secure</h4>
+    <p>Signed & verified builds.</p>
+  </div>
+  <div class="feature">
+    <h4>⚡ Fast</h4>
+    <p>No heavy animations.</p>
+  </div>
+  <div class="feature">
+    <h4>💬 Community</h4>
+    <p>Discord & updates.</p>
+  </div>
+</section>
+
+<section class="changelog">
+  <h3>📄 Change Logs</h3>
+  <pre id="changelog">Loading...</pre>
+</section>
+
+</main>
+
+<footer>
+  © 2025 DarkCheatClient — Winter Edition
+</footer>
+
+<script>
+const mainScript = "loadstring(game:HttpGet('https://dccteam.com/main'))()";
+const universalScript = "loadstring(game:HttpGet('https://dccteam.com/universal'))()";
+
+// Функции для копирования с уведомлениями
+function copyMainScript() {
+  copyText(mainScript, 'main');
+}
+
+function copyUniversalScript() {
+  copyText(universalScript, 'universal');
+}
+
+function copyText(t, type) {
+  navigator.clipboard.writeText(t);
+  showToast(type);
+}
+
+function showToast(type) {
+  // Удаляем предыдущие тосты
+  const oldToasts = document.querySelectorAll('.toast');
+  oldToasts.forEach(toast => toast.remove());
+  
+  // Создаем новый тост
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  
+  const icon = document.createElement('div');
+  icon.className = 'toast-icon';
+  icon.textContent = '✓';
+  
+  const content = document.createElement('div');
+  content.className = 'toast-content';
+  
+  const title = document.createElement('div');
+  title.className = 'toast-title';
+  title.textContent = type === 'main' ? 'Main Script Copied!' : 'Universal Script Copied!';
+  
+  const message = document.createElement('div');
+  message.className = 'toast-message';
+  message.textContent = type === 'main' 
+    ? 'The main script has been copied to clipboard.' 
+    : 'The universal script has been copied to clipboard.';
+  
+  content.appendChild(title);
+  content.appendChild(message);
+  
+  toast.appendChild(icon);
+  toast.appendChild(content);
+  
+  document.body.appendChild(toast);
+  
+  // Автоматическое удаление через 3 секунды
+  setTimeout(() => {
+    if (toast.parentNode) {
+      toast.remove();
+    }
+  }, 3000);
+}
+
+/* Load changelog */
+fetch("https://raw.githubusercontent.com/DarkCheatClientTeam/Files/refs/heads/main/changelogs.txt")
+  .then(r => r.text())
+  .then(t => document.getElementById("changelog").textContent = t);
+
+/* Snow */
+for(let i=0;i<18;i++){
+  const s=document.createElement("div");
+  s.className="snow";
+  s.textContent="❄";
+  s.style.left=Math.random()*100+"vw";
+  s.style.animationDuration=5+Math.random()*6+"s";
+  s.style.fontSize=10+Math.random()*12+"px";
+  document.body.appendChild(s);
+}
+</script>
+
+</body>
+    </html>
